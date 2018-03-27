@@ -4,6 +4,7 @@ import io.github.fsud.annotation.Controller;
 import io.github.fsud.annotation.RequestMapping;
 import io.github.fsud.util.ClassUtil;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -17,19 +18,20 @@ public class RequestMappingConfiguration {
     private static Map<Request,RequestReflect> requestReflectMap = new HashMap<>();
 
 
-    public static void init() throws Exception {
+    public static void init() throws IOException {
         //获取根目录下的包含@Controller的所有class
         List<Class> classList = ClassUtil.getClassWithAnnotation(Controller.class,"io/suddenfora","io.suddenfora");
 
         //扫描每个class的所有方法，如果存在@RequestMapping注解，则新增一个RequestMapping
         for (Class clazz : classList) {
-            String controllerUri = clazz.getClass().getAnnotation(RequestMapping.class).value();
+            RequestMapping reqMappingController = (RequestMapping)clazz.getAnnotation(RequestMapping.class);
+
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 if(method.isAnnotationPresent(RequestMapping.class)){
-                    Request request = new Request(method.getAnnotation(RequestMapping.class),controllerUri);
+                    Request request = new Request(method.getAnnotation(RequestMapping.class),reqMappingController);
                     if(requestReflectMap.containsKey(request)){
-                        throw new Exception("duplicate");
+                        throw new IOException("duplicate");
                     }
                     RequestReflect requestReflect = new RequestReflect(clazz,method);
                     requestReflectMap.put(request,requestReflect);

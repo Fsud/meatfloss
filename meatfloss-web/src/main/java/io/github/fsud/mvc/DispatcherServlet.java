@@ -23,25 +23,24 @@ public class DispatcherServlet extends HttpServlet {
             RequestMappingConfiguration.init();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new ServletException("DispatcherServlet::init() error",e);
         }
     }
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uri = request.getRequestURI();
         Map<Request, RequestReflect> mapping = RequestMappingConfiguration.getRequestReflectMap();
         try {
             Request requestEntry = new Request(request.getRequestURI(), request.getMethod());
             mapping.forEach((requestM,requestReflectM)->{
                 if (requestM.equals(requestEntry)){
-                    ReflectUtil.invoke(requestReflectM);
+                    ReflectUtil.invoke(requestReflectM,request,response);
                 }
             });
         }
-        catch (Exception e) {
-
+        catch (ServletException e) {
+            throw new ServletException("DispatcherServlet::service() error",e);
         }
     }
 }

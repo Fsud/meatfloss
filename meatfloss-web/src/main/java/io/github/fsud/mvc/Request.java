@@ -7,15 +7,23 @@ import io.github.fsud.exception.MethodNotSupportException;
  * Created by fankun on 2018/3/20.
  */
 public class Request {
-    private String requestURI;
-    private RequestMethod method;
+    private String requestURI = "";
+    private RequestMethod method = RequestMethod.GET;
 
     public Request() {
     }
 
-    public Request(RequestMapping requestMapping,String controllerUri) {
-        requestURI = controllerUri+"/"+requestMapping.value();
-        method = requestMapping.method();
+    public Request(RequestMapping reqMapMethod,RequestMapping reqMapController) {
+        StringBuilder sb = new StringBuilder();
+        if(reqMapController!=null){
+            sb.append(reqMapController.value());
+        }if(reqMapMethod!=null){
+            sb.append(reqMapMethod.value());
+        }
+        requestURI = sb.toString();
+        if(reqMapMethod!=null){
+            method = reqMapMethod.method();
+        }
     }
 
     public Request(String uri,String requestMethod) throws MethodNotSupportException{

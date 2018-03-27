@@ -20,21 +20,22 @@ public class ClassUtil {
 
     public static void getClass(List<Class> classOfPath, String path, String packageName) throws IOException {
         Enumeration<URL> urls = classLoader.getResources(path);
-        URL url = urls.nextElement();
-        url = urls.nextElement();
-        if (URL_PROTOCOL_FILE.equals(url.getProtocol())) {
-            File[] classOrDictionaries = new File(url.getPath()).listFiles();
-            for (File classOrDictionary : classOrDictionaries) {
-                String fileName = classOrDictionary.getName();
-                if (classOrDictionary.isDirectory()) {
-                    String subPath = path + SEPARATOR + fileName;
-                    String subPackageName = packageName + POINT + fileName;
-                    getClass(classOfPath, subPath, subPackageName);
-                }
-                else {
-                    Class clazz = load(packageName + POINT
-                            + classOrDictionary.getName().substring(0, classOrDictionary.getName().indexOf(POINT)));
-                    classOfPath.add(clazz);
+        while(urls.hasMoreElements()){
+            URL url = urls.nextElement();
+            if (URL_PROTOCOL_FILE.equals(url.getProtocol())) {
+                File[] classOrDictionaries = new File(url.getPath()).listFiles();
+                for (File classOrDictionary : classOrDictionaries) {
+                    String fileName = classOrDictionary.getName();
+                    if (classOrDictionary.isDirectory()) {
+                        String subPath = path + SEPARATOR + fileName;
+                        String subPackageName = packageName + POINT + fileName;
+                        getClass(classOfPath, subPath, subPackageName);
+                    }
+                    else {
+                        Class clazz = load(packageName + POINT
+                                + classOrDictionary.getName().substring(0, classOrDictionary.getName().indexOf(POINT)));
+                        classOfPath.add(clazz);
+                    }
                 }
             }
         }
